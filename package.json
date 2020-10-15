@@ -1,0 +1,23 @@
+{
+  "name": "flat-route",
+  "version": "0.0.1",
+  "description": "A package that let you create nested path in vue router even without having any component on the top path.",
+  "main": "dist/flat-routes.js",
+  "license": "MIT",
+  "keywords": [
+    "path",
+    "no component",
+    "flat"
+  ],
+  "author": "Alessandro Vandelli <a.vandelli@dreamonkey.com>",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "typings": "dist/types/flat-routes.d.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc --declaration --declarationDir dist/types",
+    "test": "echo \"No test specified\" && exit 0",
+    "deploy": "yarn build && yarn publish --tag latest"
+  }
+}
