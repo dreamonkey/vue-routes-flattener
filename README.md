@@ -2,7 +2,7 @@
 
 This is a [NPM Package(PKG)](https://www.npmjs.com/package/package)
 It automatically manage parent paths that doesn't have any component.
-This feature is not currently available in vue router. You can read more on this (issue)[https://github.com/vuejs/vue-router/issues/745].
+This feature is not currently available in (vue router)[https://router.vuejs.org]. You can read more on this (issue)[https://github.com/vuejs/vue-router/issues/745].
 Using this PKG should not affect the standard vue-router behavior it only adds a useful feature.
 
 ## Install
@@ -22,7 +22,7 @@ Suppose you have a project with these pages:
 - Location-los-angeles -> '/locations/los-angeles'
 - Location-italy -> '/locations/italy'
 
-and also suppose that you don't have a "location" for any reasons.
+Also suppose that you don't need some kind of a 'location' layout.
 The correct way to set up your routes would be:
 
 ```js
@@ -67,6 +67,8 @@ export default routes;
 
 ## Use
 
+This AE allows to:
+
 ```js
 // src/router/routes.
 
@@ -80,7 +82,7 @@ const routes: RouteConfig[] = [
       { path: "", component: () => import("pages/home.vue") },
       { path: "home", component: () => import("pages/home.vue") },
       {
-        path: "locations",
+        path: "locations", // <-- Notice
         children: [
           {
             path: "new-york",
@@ -136,13 +138,11 @@ export default function () {
 }
 ```
 
-## WHy is not implemented in vue router:
+## Why is not implemented in vue router
 
-Here is a little digression about why Evan You, the creator of vue, doesn't want this feature.
-If you still hope on a new update where you can find a build in implementation that permit you to have a void parent you probably need too hope for a very long time.
+Currently you can't find a builtin implementation that permits you to have a void parent.
 
-To understand how vue router's mechanism works make sure to not compare it with the way folders works.
-Urls were designed to react different from path so let's define the differences.
+To understand how vue router's mechanism works don't compare it with folders because urls were designed to react different from path.
 
 Let's try to build a website's page system using the folder mentality replicating the example above.
 So on your desktop create an empty Folder(`F`) called 'Project' and put inside the pages that are the same as files(`f`).
@@ -158,8 +158,7 @@ So on your desktop create an empty Folder(`F`) called 'Project' and put inside t
 ```
 
 You can already spot a problem which is `how can i represent the main-layout?`.
-The `main-layout` is not a simple folder where you can put files inside. Instead is a real entity that should be added to all your pages which we call `router outlet`(`O`).
-Here arises the need for a new structure where you should **NOT** think about pages the same way as folders.
+The `main-layout` is not a simple folder where you can put files inside. Instead is a real entity that should be added to all your pages which we will call `router outlet`(`O`).
 
 ```
 -Project(F)
@@ -175,8 +174,6 @@ Here arises the need for a new structure where you should **NOT** think about pa
 
 But you still want a way to represent folders so you can have some sort of a page container rather then something that host them.
 
-Doing something like:
-
 ```
 -Project(F)
 |
@@ -191,9 +188,9 @@ Doing something like:
     |--Italy(f)
 ```
 
-imposes you to have a router outlet page that you doesn't need.
+This example imposes you to have a router outlet page that you don't need.
 
-Also suppose that you want a single page called `Locations` where you have all the links. The only way to achieve this with vue router is to separately create all the page without any outlet page loosing the grouping benefit.
+Also if you want a single page called `Locations` where you have all the links to all location page the only way to achieve this with vue router is to separately create all the page without any outlet page loosing the grouping benefit.
 
 With this PKG you'll need to add a `route` object with an empty path( '' ) inside:
 
