@@ -1,7 +1,7 @@
 {
-  "name": "flat-route",
+  "name": "@dreamonkey/vue-routes-flattener",
   "version": "0.0.1",
-  "description": "A package that let you create nested path in vue router even without having any component on the top path.",
+  "description": "A package that let you use grouping routes, logical routes without 'component' property meant to reduce repetition in their children paths",
   "main": "dist/flat-routes.js",
   "license": "MIT",
   "keywords": [
@@ -11,8 +11,7 @@
   ],
   "author": "Alessandro Vandelli <a.vandelli@dreamonkey.com>",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "typings": "dist/types/flat-routes.d.js",
   "scripts": {
