@@ -1,15 +1,7 @@
-import Vue, { ComponentOptions, AsyncComponent } from "vue";
-
-type Component = ComponentOptions<Vue> | typeof Vue | AsyncComponent;
-
-interface RouteConfig {
-  children?: RouteConfig[];
-  component?: Component;
-  path: string;
-}
+import { RouteConfig } from "vue-router";
 
 function shouldFlatRoute(route: RouteConfig) {
-  return route.path && route.children && !route.component;
+  return route.path && route.children && !(route as any).component;
 }
 
 function applyPrefix(prefix: string, routes: RouteConfig[]) {
