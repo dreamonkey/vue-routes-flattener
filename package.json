@@ -1,6 +1,6 @@
 {
   "name": "@dreamonkey/vue-routes-flattener",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A package that let you use grouping routes, logical routes without 'component' property meant to reduce repetition in their children paths",
   "main": "dist/flat-routes.js",
   "license": "MIT",
@@ -23,5 +23,8 @@
     "typescript": "^4.0.3",
     "vue": "^2.6.12",
     "vue-router": "^3.4.7"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
