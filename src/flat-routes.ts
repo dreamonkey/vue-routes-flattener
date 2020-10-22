@@ -1,8 +1,11 @@
+import Vue, { ComponentOptions, AsyncComponent } from "vue";
+
+type Component = ComponentOptions<Vue> | typeof Vue | AsyncComponent;
+
 interface RouteConfig {
-  children: RouteConfig[];
-  component: string;
+  children?: RouteConfig[];
+  component?: Component;
   path: string;
-  length: number;
 }
 
 function shouldFlatRoute(route: RouteConfig) {
@@ -16,7 +19,7 @@ function applyPrefix(prefix: string, routes: RouteConfig[]) {
   });
 }
 
-export default function flatRoutes(routes: RouteConfig[]) {
+export function flatRoutes(routes: RouteConfig[]): RouteConfig[] {
   const flattenedRoutes: RouteConfig[] = [];
 
   for (const route of routes) {

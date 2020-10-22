@@ -66,10 +66,10 @@ Using this package you can reduce repetitions in code, while obtaining the same 
 // src/router/routes.ts
 
 import { RouteConfig } from "vue-router";
-import flatRoutes from "@dreamonkey/vue-routes-flattener"; // <-- Import from the package
+import { flatRoutes } from "@dreamonkey/vue-routes-flattener"; // <-- Import from the package
 
 const routes: RouteConfig[] = flatRoutes([
-  // <-- Apply the flattening
+  // Apply the flattening === ^^^^^^^^^^
   {
     path: "/",
     component: () => import("layouts/main-layout.vue"),
@@ -155,13 +155,13 @@ The former option increases the complexity of a component which should not be th
 ```
 
 This package allows you to use "virtual" router outlets (aka grouping routes) which help you keep the configuration in sync with your directory-based mental model, then flattens the configuration at runtime.
-You can also provide an "index" component (Locations page in our previous example) by specifying an empty path (`""`):
+You can also provide an "index" component (Locations page in our previous example) by specifying a child of the grouping route with an empty path (`""`):
 
 ```js
-// src/router/routes.
+// src/router/routes.ts
 
 import { RouteConfig } from "vue-router";
-import flatRoutes from "@dreamonkey/vue-routes-flattener";
+import { flatRoutes } from "@dreamonkey/vue-routes-flattener";
 
 const routes: RouteConfig[] = flatRoutes([
   {
@@ -170,9 +170,9 @@ const routes: RouteConfig[] = flatRoutes([
     children: [
       { path: "home", component: () => import("pages/home.vue") },
       {
-        path: "locations", // <-- "virtual" router outlet
+        path: "locations", // <-- grouping route / "virtual" router outlet
         children: [
-          { path: "", component: () => import("pages/location.vue") }, // <-- "index" component
+          { path: "", component: () => import("pages/locations.vue") }, // <-- "index" component
           {
             path: "new-york",
             component: () => import("pages/new-york.vue"),

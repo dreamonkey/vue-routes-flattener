@@ -18,5 +18,8 @@
     "build": "rm -rf dist && tsc --declaration --declarationDir dist/types",
     "test": "echo \"No test specified\" && exit 0",
     "deploy": "yarn build && yarn publish --tag latest"
+  },
+  "devDependencies": {
+    "vue": "^2.6.12"
   }
 }
