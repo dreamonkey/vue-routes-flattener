@@ -1,32 +1,31 @@
-# Vue-routes-flattener
+# vue-routes-flattener
 
-This is a [NPM Package(PKG)](https://www.npmjs.com/package/package)
-It automatically manage parent paths that doesn't have any component.
-This feature is not currently available in vue router. You can read more on this (issue)[https://github.com/vuejs/vue-router/issues/745].
-Using this PKG should not affect the standard vue-router behavior it only adds a useful feature.
+This [package](https://www.npmjs.com/package/package) is meant to be used with [Vue Router](https://router.vuejs.org) and based on [this issue](https://github.com/vuejs/vue-router/issues/745).
+It allows usage of grouping routes, logical routes without 'component' property meant to reduce repetition in their children paths.
+This feature is purely additive and doesn't affect standard vue-router behaviour.
 
 ## Install
 
 ```bash
-yarn add -D @dreamonkey/vue-routes-flattener
+yarn add @dreamonkey/vue-routes-flattener
 ```
 
-## Use Vue Routes
+## Use case
 
-To benefit of this PKG main feature you should have or need some nested routes.
-Suppose you have a project with these pages:
+Suppose you have a "MainLayout" component, containing a router outlet which displays these pages:
 
-- Home -> '' or '/home'
-- Contacts -> '/contacts
-- Location-new-york -> '/locations/new-york'
-- Location-los-angeles -> '/locations/los-angeles'
-- Location-italy -> '/locations/italy'
+- MainLayout
+  - Home -> '/home'
+  - NewYork -> '/locations/new-york'
+  - LosAngeles -> '/locations/los-angeles'
+  - Italy -> '/locations/italy'
+  - Contacts -> '/contacts
 
-and also suppose that you don't have a "location" for any reasons.
-The correct way to set up your routes would be:
+Also suppose you don't need a '/location' page containing a router outlet.
+Your routes configuration will be:
 
 ```js
-// src/router/routes.
+// src/router/routes.ts
 
 import { RouteConfig } from "vue-router";
 
@@ -35,18 +34,17 @@ const routes: RouteConfig[] = [
     path: "/",
     component: () => import("layouts/main-layout.vue"),
     children: [
-      { path: "", component: () => import("pages/home.vue") },
       { path: "home", component: () => import("pages/home.vue") },
       {
-        path: "locations/new-york",
+        path: "locations/new-york", // <-- "locations" repetition
         component: () => import("pages/new-york.vue"),
       },
       {
-        path: "locations/los-angeles",
+        path: "locations/los-angeles", // <-- "locations" repetition
         component: () => import("pages/los-angeles.vue"),
       },
       {
-        path: "locations/italy",
+        path: "locations/italy", // <-- "locations" repetition
         component: () => import("pages/italy.vue"),
       },
       {
@@ -55,43 +53,41 @@ const routes: RouteConfig[] = [
       },
     ],
   },
-
-  {
-    path: "*",
-    component: () => import("pages/error404.vue"),
-  },
 ];
 
 export default routes;
 ```
 
-## Use
+## Usage
+
+Using this package you can reduce repetitions in code, while obtaining the same configuration at runtime:
 
 ```js
-// src/router/routes.
+// src/router/routes.ts
 
 import { RouteConfig } from "vue-router";
+import { flatRoutes } from "@dreamonkey/vue-routes-flattener"; // <-- Import from the package
 
-const routes: RouteConfig[] = [
+const routes: RouteConfig[] = flatRoutes([
+  // Apply the flattening === ^^^^^^^^^^
   {
     path: "/",
     component: () => import("layouts/main-layout.vue"),
     children: [
-      { path: "", component: () => import("pages/home.vue") },
       { path: "home", component: () => import("pages/home.vue") },
       {
-        path: "locations",
+        path: "locations", // <-- Grouping route, no 'component' is defined
         children: [
           {
-            path: "new-york",
+            path: "new-york", // <-- No repetition into child path
             component: () => import("pages/new-york.vue"),
           },
           {
-            path: "los-angeles",
+            path: "los-angeles", // <-- No repetition into child path
             component: () => import("pages/los-angeles.vue"),
           },
           {
-            path: "italy",
+            path: "italy", // <-- No repetition into child path
             component: () => import("pages/italy.vue"),
           },
         ],
@@ -102,117 +98,81 @@ const routes: RouteConfig[] = [
       },
     ],
   },
-
-  {
-    path: "*",
-    component: () => import("pages/error404.vue"),
-  },
-];
+]);
 
 export default routes;
 ```
 
-Using an empty parent will generate an error so you need to intercept the route before it's used by the vue router:
+If you forget to apply `flatRoutes`, Vue Router will throw an error because routes without 'component' property are not allowed.
 
-```js
-// src/router/index.js
+## Why this feature is not natively available
 
-import Vue from "vue";
-import VueRouter from "vue-router";
-import routes from "./routes";
-import flatRoutes from "@dreamonkey/vue-routes-flattener"; //<-- Notice the import
-Vue.use(VueRouter);
+This feature is not natively available due to [some concerns exposed by Evan You](https://github.com/vuejs/vue-router/issues/745#issuecomment-263410514).
 
-export default function () {
-  const Router = new VueRouter({
-    scrollBehavior: () => ({ x: 0, y: 0 }),
-    routes: flatRoutes(routes), //<------------------- Notice flatRoutes()
+> I think this breaks the relationship between route config nesting and router-view nesting and can make things a bit harder to reason about.
 
-    mode: process.env.VUE_ROUTER_MODE,
-    base: process.env.VUE_ROUTER_BASE,
-  });
+URLs/paths are based on the filesystem, with its directories and files. Directories are the entry point of a new nesting level, while files are actual content.
 
-  return Router;
-}
-```
-
-## WHy is not implemented in vue router:
-
-Here is a little digression about why Evan You, the creator of vue, doesn't want this feature.
-If you still hope on a new update where you can find a build in implementation that permit you to have a void parent you probably need too hope for a very long time.
-
-To understand how vue router's mechanism works make sure to not compare it with the way folders works.
-Urls were designed to react different from path so let's define the differences.
-
-Let's try to build a website's page system using the folder mentality replicating the example above.
-So on your desktop create an empty Folder(`F`) called 'Project' and put inside the pages that are the same as files(`f`).
+If you think about our example configuration into as a filesystem structure (`D` = Directory, `f` = File) you'll probably get something like:
 
 ```
--Project(F)
-|
+-MainLayout(D)
 |--Home(f)
+|--Locations(D)
+  |--NewYork(f)
+  |--LosAngeles(f)
+  |--Italy(f)
 |--Contacts(f)
-|--Location-new-york(f)
-|--Location-los-angeles(f)
-|--Location-italy(f)
 ```
 
-You can already spot a problem which is `how can i represent the main-layout?`.
-The `main-layout` is not a simple folder where you can put files inside. Instead is a real entity that should be added to all your pages which we call `router outlet`(`O`).
-Here arises the need for a new structure where you should **NOT** think about pages the same way as folders.
+Vue Router configuration is based on router outlets instead. A router outlet open a new nesting level **and** is hosted into a component which could add content. In our comparison, the hosting component is **both** a directory and a file, and this can lead to confusing results in some edge cases.
+
+The same example, using router outlets (`O`) as directories, would be:
 
 ```
--Project(F)
-|
-|--Main-layout(O)
-  |
-  |--Home(f)
-  |--Contacts(f)
-  |--Location-new-york(f)
-  |--Location-los-angeles(f)
-  |--Location-italy(f)
+-MainLayout(O)
+|--Home(f)
+|--Locations(O)
+  |--NewYork(f)
+  |--LosAngeles(f)
+  |--Italy(f)
+|--Contacts(f)
 ```
 
-But you still want a way to represent folders so you can have some sort of a page container rather then something that host them.
+but this would require you to create a dummy component containing only a router outlet.
+If you also need a `Locations` page, for example an index with links to other Location-related pages, you would need to either have the dummy component dynamically change its template based on the current route or get rid of the router outlet altogether, flat out all routes and put there the new index component.
 
-Doing something like:
+The former option increases the complexity of a component which should not be there in the first place, while the latter will generate repetition and lead to a de-sync between the URL structure (as you mentally imagine it when thinking about directories) and the configuration one.
 
 ```
--Project(F)
-|
-|--Main-layout(O)
-  |
-  |--Home(f)
-  |--Contacts(f)
-  |--Locations(O)
-    |
-    |--New-york(f)
-    |--Los-angeles(f)
-    |--Italy(f)
+-Main-layout(O)
+|--Home(f)
+|--Locations(f)
+|--Locations-NewYork(f)
+|--Locations-LosAngeles(f)
+|--Locations-Italy(f)
+|--Contacts(f)
 ```
 
-imposes you to have a router outlet page that you doesn't need.
-
-Also suppose that you want a single page called `Locations` where you have all the links. The only way to achieve this with vue router is to separately create all the page without any outlet page loosing the grouping benefit.
-
-With this PKG you'll need to add a `route` object with an empty path( '' ) inside:
+This package allows you to use "virtual" router outlets (aka grouping routes) which help you keep the configuration in sync with your directory-based mental model, then flattens the configuration at runtime.
+You can also provide an "index" component (Locations page in our previous example) by specifying a child of the grouping route with an empty path (`""`):
 
 ```js
-// src/router/routes.
+// src/router/routes.ts
 
 import { RouteConfig } from "vue-router";
+import { flatRoutes } from "@dreamonkey/vue-routes-flattener";
 
-const routes: RouteConfig[] = [
+const routes: RouteConfig[] = flatRoutes([
   {
     path: "/",
     component: () => import("layouts/main-layout.vue"),
     children: [
-      { path: "", component: () => import("pages/home.vue") },
       { path: "home", component: () => import("pages/home.vue") },
       {
-        path: "locations",
+        path: "locations", // <-- grouping route / "virtual" router outlet
         children: [
-          { path: "", component: () => import("pages/location.vue") }, //<-- Notice that
+          { path: "", component: () => import("pages/locations.vue") }, // <-- "index" component
           {
             path: "new-york",
             component: () => import("pages/new-york.vue"),
@@ -233,12 +193,7 @@ const routes: RouteConfig[] = [
       },
     ],
   },
-
-  {
-    path: "*",
-    component: () => import("pages/error404.vue"),
-  },
-];
+]);
 
 export default routes;
 ```

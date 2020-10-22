@@ -1,12 +1,7 @@
-interface RouteConfig {
-  children: RouteConfig[];
-  component: string;
-  path: string;
-  length: number;
-}
+import { RouteConfig } from "vue-router";
 
 function shouldFlatRoute(route: RouteConfig) {
-  return route.path && route.children && !route.component;
+  return route.path && route.children && !(route as any).component;
 }
 
 function applyPrefix(prefix: string, routes: RouteConfig[]) {
@@ -16,7 +11,7 @@ function applyPrefix(prefix: string, routes: RouteConfig[]) {
   });
 }
 
-export default function flatRoutes(routes: RouteConfig[]) {
+export function flatRoutes(routes: RouteConfig[]): RouteConfig[] {
   const flattenedRoutes: RouteConfig[] = [];
 
   for (const route of routes) {
